@@ -8,8 +8,9 @@ type Paciente struct {
 	Sobrenome      string `json:"sobrenome"`
 	RG             string `json:"matricula"`
 	DataDeCadastro string `json:"dataDeCadastro"`
+	Consulta       Consulta
 }
-  
+
 func (Paciente) TableName() string {
 	return "pacientes"
 }

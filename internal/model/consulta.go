@@ -4,8 +4,8 @@ import "gorm.io/gorm"
 
 type Consulta struct {
 	gorm.Model
-	IdDentista int    `json:"id_dentista"`
-	IdPaciente int    `json:"id_pacient"`
+	DentistaID uint   `json:"id_dentista"`
+	PacienteID uint   `json:"id_paciente"`
 	DataHora   string `json:"dataHora"`
 	Descricao  string `json:"descricao"`
 }
@@ -13,7 +13,7 @@ type Consulta struct {
 type Tabler interface {
 	TableName() string
 }
-  
+
 func (Consulta) TableName() string {
 	return "consultas"
 }
