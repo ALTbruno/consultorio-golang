@@ -8,3 +8,7 @@ type Dentista struct {
 	Sobrenome string `json:"sobrenome"`
 	Matricula string `json:"matricula"`
 }
+
+func (Dentista) TableName() string {
+	return "dentistas"
+}
