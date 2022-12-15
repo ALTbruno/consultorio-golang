@@ -22,15 +22,14 @@ func DentistaPOST(c *gin.Context) {
 }
 
 func DentistaGET(c *gin.Context) {
-	userId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-	result := service.BuscarDentistaPorID(userId)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	result := service.BuscarDentistaPorID(id)
 	c.JSON(200, result)
 }
-
 
 func DentistaPUT(c *gin.Context) {
 	c.JSON(201, gin.H{
@@ -45,11 +44,11 @@ func DentistaPATCH(c *gin.Context) {
 }
 
 func DentistaDELETE(c *gin.Context) {
-	userId, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-	service.DeletarDentistaPorID(userId)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	service.DeletarDentistaPorID(id)
 	c.Writer.WriteHeader(http.StatusNoContent)
 }
