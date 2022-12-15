@@ -13,7 +13,7 @@ func init() {
 }
 
 func main() {
-	
+
 	app := gin.Default()
 
 	dentistas := app.Group("/dentistas")
@@ -23,6 +23,15 @@ func main() {
 		dentistas.PUT("/:id", controller.DentistaPUT)
 		dentistas.PATCH("/:id", controller.DentistaPATCH)
 		dentistas.DELETE("/:id", controller.DentistaDELETE)
+	}
+
+	pacientes := app.Group("/pacientes")
+	{
+		pacientes.POST("", controller.PacientePOST)
+		pacientes.GET("/:id", controller.PacienteGET)
+		pacientes.PUT("/:id", controller.PacientePUT)
+		pacientes.PATCH("/:id", controller.PacientePATCH)
+		pacientes.DELETE("/:id", controller.PacienteDELETE)
 	}
 
 	app.Run()
