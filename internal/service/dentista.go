@@ -12,16 +12,19 @@ func CadastrarDentista(dentista model.Dentista) model.Dentista {
 	return d
 }
 
-func BuscarDentistaPorID(id int) model.Dentista {
+func BuscarDentistaPorID(id int) (model.Dentista, string) {
+	if !repository.ExisteDentistaPorId(id) {
+		return model.Dentista{}, fmt.Sprintf("Dentista não encontrado %d", id)
+	}
 	dentista := repository.BuscarDentistaPorID(id)
-	return dentista
+	return dentista, ""
 }
 
 func DeletarDentistaPorID(id int) (int, string) {
-	if !repository.ExisteDentistaPorId(id) {
-		return 400, fmt.Sprintf("Dentista %d não encontrado", id)
+	dentista, res := BuscarDentistaPorID(id)
+	if len(res) > 0 {
+		return 400, res
 	}
-	dentista := BuscarDentistaPorID(id)
 	result := repository.DeletarDentista(dentista)
 	if result {
 		return 200, fmt.Sprintf("Dentista %d deletado com sucesso", id)

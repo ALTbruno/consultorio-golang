@@ -27,8 +27,15 @@ func DentistaGET(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result := service.BuscarDentistaPorID(id)
-	c.JSON(200, result)
+
+	dentista, res := service.BuscarDentistaPorID(id)
+	if len(res) > 0 {
+		c.JSON(400, gin.H{
+			"mensagem": res,
+		})
+		return
+	}
+	c.JSON(200, dentista)
 }
 
 func DentistaPUT(c *gin.Context) {
