@@ -49,6 +49,8 @@ func DentistaDELETE(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	service.DeletarDentistaPorID(id)
-	c.Writer.WriteHeader(http.StatusNoContent)
+	code, result := service.DeletarDentistaPorID(id)
+	c.JSON(code, gin.H{
+		"mensagem": result,
+	})
 }
