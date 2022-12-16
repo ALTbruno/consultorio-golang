@@ -34,5 +34,14 @@ func main() {
 		pacientes.DELETE("/:id", controller.PacienteDELETE)
 	}
 
+	consultas := app.Group("/consultas")
+	{
+		consultas.POST("", controller.ConsultaPOST)
+		consultas.GET("/:id", controller.ConsultaGET)
+		consultas.PUT("/:id", controller.ConsultaPUT)
+		consultas.PATCH("/:id", controller.ConsultaPATCH)
+		consultas.DELETE("/:id", controller.ConsultaDELETE)
+	}
+
 	app.Run()
 }
