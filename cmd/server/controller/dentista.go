@@ -17,7 +17,13 @@ func DentistaPOST(c *gin.Context) {
 		})
 		return
 	}
-	result := service.CadastrarDentista(dentista)
+	result, s := service.CadastrarDentista(dentista)
+	if len(s) > 0 {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
 	c.JSON(201, result)
 }
 
@@ -39,15 +45,26 @@ func DentistaGET(c *gin.Context) {
 }
 
 func DentistaPUT(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"message": "pong",
-	})
-}
-
-func DentistaPATCH(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"message": "pong",
-	})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var dentista model.Dentista
+	if err := c.ShouldBindJSON(&dentista); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	d, s := service.AtualizarDentistaPorID(dentista, id)
+	if len(s) > 0 {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(200, d)
 }
 
 func DentistaDELETE(c *gin.Context) {
