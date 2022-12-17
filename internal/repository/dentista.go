@@ -30,9 +30,8 @@ func ExisteDentistaPorId(id int) bool {
 	return true
 }
 
-func AtualizarDentistaPorID(id int) model.Dentista {
-	dentista := BuscarDentistaPorID(id)
-	db.DB.First(&dentista, id)
+func AtualizarDentista(dentista model.Dentista) model.Dentista {
+	db.DB.Save(&dentista)
 	return dentista
 }
 

@@ -5,11 +5,17 @@ import (
 
 	"github.com/ALTbruno/consultorio-golang/internal/model"
 	"github.com/ALTbruno/consultorio-golang/internal/repository"
+	"github.com/go-playground/validator/v10"
 )
 
-func CadastrarDentista(dentista model.Dentista) model.Dentista {
+func CadastrarDentista(dentista model.Dentista) (model.Dentista, string) {
+	validate := validator.New()
+	err := validate.Struct(dentista)
+	if err != nil {
+		return model.Dentista{}, err.Error()
+	}
 	d := repository.CadastrarDentista(dentista)
-	return d
+	return d, ""
 }
 
 func BuscarDentistaPorID(id int) (model.Dentista, string) {
@@ -18,6 +24,23 @@ func BuscarDentistaPorID(id int) (model.Dentista, string) {
 	}
 	dentista := repository.BuscarDentistaPorID(id)
 	return dentista, ""
+}
+
+func AtualizarDentistaPorID(dentista model.Dentista, id int) (model.Dentista, string) {
+	validate := validator.New()
+	err := validate.Struct(dentista)
+	if err != nil {
+		return model.Dentista{}, err.Error()
+	}
+	dentistaSalvo, s := BuscarDentistaPorID(id)
+	if len(s) > 0 {
+		return model.Dentista{}, s
+	}
+	dentistaSalvo.Nome = dentista.Nome
+	dentistaSalvo.Sobrenome = dentista.Sobrenome
+	dentistaSalvo.Matricula = dentista.Matricula
+	d := repository.AtualizarDentista(dentistaSalvo)
+	return d, ""
 }
 
 func DeletarDentistaPorID(id int) (int, string) {
