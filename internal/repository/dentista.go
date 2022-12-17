@@ -39,3 +39,8 @@ func DeletarDentista(dentista model.Dentista) bool {
 	result := db.DB.Delete(&dentista)
 	return result.RowsAffected > 0
 }
+
+func AtualizarDentistaParcial(dentista model.Dentista, colunas map[string]interface{}) model.Dentista {
+	db.DB.Model(&dentista).UpdateColumns(colunas)
+	return dentista
+}

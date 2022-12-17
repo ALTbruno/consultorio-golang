@@ -43,6 +43,26 @@ func AtualizarDentistaPorID(dentista model.Dentista, id int) (model.Dentista, st
 	return d, ""
 }
 
+func AtualizarDentistaParcial(dentista model.Dentista, id int) (model.Dentista, string) {
+	dentistaSalvo, s := BuscarDentistaPorID(id)
+	if len(s) > 0 {
+		return model.Dentista{}, s
+	}
+	colunas := make(map[string]interface{})
+	if dentista.Nome != "" {
+		colunas["nome"] = dentista.Nome
+	}
+	if dentista.Sobrenome != "" {
+		colunas["sobrenome"] = dentista.Sobrenome
+	}
+	if dentista.Matricula != "" {
+		colunas["matricula"] = dentista.Matricula
+	}
+	
+	r := repository.AtualizarDentistaParcial(dentistaSalvo, colunas)
+	return r, ""
+}
+
 func DeletarDentistaPorID(id int) (int, string) {
 	dentista, res := BuscarDentistaPorID(id)
 	if len(res) > 0 {
