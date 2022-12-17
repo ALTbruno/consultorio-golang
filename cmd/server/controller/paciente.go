@@ -17,7 +17,13 @@ func PacientePOST(c *gin.Context) {
 		})
 		return
 	}
-	result := service.CadastrarPaciente(paciente)
+	result, s := service.CadastrarPaciente(paciente)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
 	c.JSON(201, result)
 }
 
@@ -27,20 +33,61 @@ func PacienteGET(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result := service.BuscarPacientePorID(id)
+
+	result, s := service.BuscarPacientePorID(id)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
 	c.JSON(200, result)
 }
 
 func PacientePUT(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"message": "pong",
-	})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var paciente model.Paciente
+	if err := c.ShouldBindJSON(&paciente); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	result, s := service.AtualizarPacientePorID(paciente, id)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(200, result)
 }
 
 func PacientePATCH(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"message": "pong",
-	})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var paciente model.Paciente
+	if err := c.ShouldBindJSON(&paciente); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	result, s := service.AtualizarPacienteParcial(paciente, id)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(200, result)
 }
 
 func PacienteDELETE(c *gin.Context) {
@@ -49,6 +96,8 @@ func PacienteDELETE(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	service.DeletarPacientePorID(id)
-	c.Writer.WriteHeader(http.StatusNoContent)
+	code, result := service.DeletarPacientePorID(id)
+	c.JSON(code, gin.H{
+		"mensagem": result,
+	})
 }
