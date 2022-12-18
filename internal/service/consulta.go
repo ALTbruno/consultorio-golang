@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 
+	"github.com/ALTbruno/consultorio-golang/internal/dto"
 	"github.com/ALTbruno/consultorio-golang/internal/model"
 	"github.com/ALTbruno/consultorio-golang/internal/repository"
 	"github.com/go-playground/validator/v10"
@@ -28,6 +29,33 @@ func CadastrarConsulta(consulta model.Consulta) (model.Consulta, string) {
 		return model.Consulta{}, np
 	}
 	c := repository.CadastrarConsulta(consulta)
+	return c, ""
+}
+
+func CadastrarConsultaPorMatriculaRG(consulta dto.ConsultaMatriculaRG) (model.Consulta, string) {
+	if !DataHoraValida(consulta.DataHora) {
+		return model.Consulta{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
+	}
+	validate := validator.New()
+	err := validate.Struct(consulta)
+	if err != nil {
+		return model.Consulta{}, err.Error()
+	}
+	dentista, nd := BuscarDentistaPorMatricula(consulta.MatriculaDentista)
+	if nd != "" {
+		return model.Consulta{}, nd
+	}
+	paciente, np := BuscarPacientePorRG(consulta.RGPaciente)
+	if np != "" {
+		return model.Consulta{}, np
+	}
+	consultaModel := model.Consulta {
+		DentistaID: dentista.ID,
+		PacienteID: paciente.ID,
+		DataHora: consulta.DataHora,
+		Descricao: consulta.Descricao,
+	}
+	c := repository.CadastrarConsulta(consultaModel)
 	return c, ""
 }
 

@@ -29,6 +29,14 @@ func BuscarPacientePorID(id int) (model.Paciente, string) {
 	return paciente, ""
 }
 
+func BuscarPacientePorRG(rg string) (model.Paciente, string) {
+	paciente := repository.BuscarPacientePorRG(rg)
+	if paciente == (model.Paciente{}) {
+		return model.Paciente{}, fmt.Sprintf("Paciente não encontrado com o RG %s", rg)
+	}
+	return paciente, ""
+}
+
 func AtualizarPacientePorID(paciente model.Paciente, id int) (model.Paciente, string) {
 	validate := validator.New()
 	err := validate.Struct(paciente)

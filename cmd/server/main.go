@@ -41,6 +41,7 @@ func main() {
 		consultas.PUT("/:id", controller.ConsultaPUT)
 		consultas.PATCH("/:id", controller.ConsultaPATCH)
 		consultas.DELETE("/:id", controller.ConsultaDELETE)
+		consultas.POST("/marcar", controller.ConsultaPorMatriculaRGPOST)
 	}
 
 	app.Run()

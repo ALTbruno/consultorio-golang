@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ALTbruno/consultorio-golang/internal/dto"
 	"github.com/ALTbruno/consultorio-golang/internal/model"
 	"github.com/ALTbruno/consultorio-golang/internal/service"
 	"github.com/gin-gonic/gin"
@@ -18,6 +19,24 @@ func ConsultaPOST(c *gin.Context) {
 		return
 	}
 	result, s := service.CadastrarConsulta(consulta)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(201, result)
+}
+
+func ConsultaPorMatriculaRGPOST(c *gin.Context) {
+	var consulta dto.ConsultaMatriculaRG
+	if err := c.ShouldBindJSON(&consulta); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	result, s := service.CadastrarConsultaPorMatriculaRG(consulta)
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,

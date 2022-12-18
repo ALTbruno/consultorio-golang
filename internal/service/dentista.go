@@ -26,6 +26,14 @@ func BuscarDentistaPorID(id int) (model.Dentista, string) {
 	return dentista, ""
 }
 
+func BuscarDentistaPorMatricula(matricula string) (model.Dentista, string) {
+	dentista := repository.BuscarDentistaPorMatricula(matricula)
+	if dentista == (model.Dentista{}) {
+		return model.Dentista{}, fmt.Sprintf("Dentista não encontrado com a Matrícula %s", matricula)
+	}
+	return dentista, ""
+}
+
 func AtualizarDentistaPorID(dentista model.Dentista, id int) (model.Dentista, string) {
 	validate := validator.New()
 	err := validate.Struct(dentista)

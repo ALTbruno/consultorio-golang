@@ -19,6 +19,12 @@ func BuscarDentistaPorID(id int) model.Dentista {
 	return dentista
 }
 
+func BuscarDentistaPorMatricula(matricula string) model.Dentista {
+	var dentista model.Dentista
+	db.DB.Where("matricula = ?", matricula).First(&dentista)
+	return dentista
+}
+
 func ExisteDentistaPorId(id int) bool {
 	var dentista model.Dentista
 	err := db.DB.First(&dentista, id).Error

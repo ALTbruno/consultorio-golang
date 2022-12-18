@@ -19,6 +19,12 @@ func BuscarPacientePorID(id int) model.Paciente {
 	return paciente
 }
 
+func BuscarPacientePorRG(rg string) model.Paciente {
+	var paciente model.Paciente
+	db.DB.Where("rg = ?", rg).First(&paciente)
+	return paciente
+}
+
 func ExistePacientePorId(id int) bool {
 	var paciente model.Paciente
 	err := db.DB.First(&paciente, id).Error
