@@ -10,6 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary Registra uma consulta
+// @Description Registra uma consulta
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ConsultaBody true "Todos os campos são obrigatórios"
+// @Success 201 {object} dto.ConsultaResponse
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas [post]
 func ConsultaPOST(c *gin.Context) {
 	var consulta model.Consulta
 	if err := c.ShouldBindJSON(&consulta); err != nil {
@@ -28,6 +36,14 @@ func ConsultaPOST(c *gin.Context) {
 	c.JSON(201, result)
 }
 
+// @Summary Registra uma consulta
+// @Description Registra uma consulta com matricula_dentista e rg_paciente
+// @Accept  json
+// @Produce  json
+// @Param request body dto.ConsultaBodyMatriculaRG true "Todos os campos são obrigatórios"
+// @Success 201 {object} dto.ConsultaResponse
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas/marcar [post]
 func ConsultaPorMatriculaRGPOST(c *gin.Context) {
 	var consulta dto.ConsultaMatriculaRG
 	if err := c.ShouldBindJSON(&consulta); err != nil {
@@ -46,6 +62,14 @@ func ConsultaPorMatriculaRGPOST(c *gin.Context) {
 	c.JSON(201, result)
 }
 
+// @Summary Busca uma consulta
+// @Description Busca uma consulta por ID
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true        "ID Consulta"
+// @Success 200 {object} dto.ConsultaResponse
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas/{id} [get]
 func ConsultaGET(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -62,6 +86,14 @@ func ConsultaGET(c *gin.Context) {
 	c.JSON(200, result)
 }
 
+// @Summary Busca consultas
+// @Description Busca consultas por RG do paciente
+// @Accept  json
+// @Produce  json
+// @Param   rg_paciente     query    string     true        "RG do Paciente"
+// @Success 200 {object} []dto.ConsultaResponse
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas [get]
 func BuscarConsultasPorRGPaciente(c *gin.Context) {
 	rg := c.Query("rg_paciente")
 	result, s := service.BuscarConsultasPorRGPaciente(rg)
@@ -75,6 +107,15 @@ func BuscarConsultasPorRGPaciente(c *gin.Context) {
 
 }
 
+// @Summary Atualiza uma consulta
+// @Description Atualiza uma consulta por ID
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true        "ID Consulta"
+// @Param request body dto.ConsultaBody true "Todos os campos são obrigatórios"
+// @Success 200 {object} dto.ConsultaResponse
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas/{id} [put]
 func ConsultaPUT(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -98,6 +139,15 @@ func ConsultaPUT(c *gin.Context) {
 	c.JSON(200, result)
 }
 
+// @Summary Atualiza uma consulta
+// @Description Atualiza uma consulta por ID
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true        "ID Consulta"
+// @Param request body dto.ConsultaBody true "Não há campos obrigatórios"
+// @Success 200 {object} dto.ConsultaResponse
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas/{id} [patch]
 func ConsultaPATCH(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -121,6 +171,14 @@ func ConsultaPATCH(c *gin.Context) {
 	c.JSON(200, result)
 }
 
+// @Summary Apaga uma consulta
+// @Description Apaga uma consulta por ID
+// @Accept  json
+// @Produce  json
+// @Param   id     path    int     true        "ID Consulta"
+// @Success 200 {object} dto.Resposta
+// @Failure 400 {object} dto.Resposta
+// @Router /consultas/{id} [delete]
 func ConsultaDELETE(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
