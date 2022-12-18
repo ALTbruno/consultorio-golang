@@ -37,6 +37,7 @@ func main() {
 	consultas := app.Group("/consultas")
 	{
 		consultas.POST("", controller.ConsultaPOST)
+		consultas.GET("", controller.BuscarConsultasPorRGPaciente)
 		consultas.GET("/:id", controller.ConsultaGET)
 		consultas.PUT("/:id", controller.ConsultaPUT)
 		consultas.PATCH("/:id", controller.ConsultaPATCH)

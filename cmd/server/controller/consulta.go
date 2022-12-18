@@ -62,6 +62,19 @@ func ConsultaGET(c *gin.Context) {
 	c.JSON(200, result)
 }
 
+func BuscarConsultasPorRGPaciente(c *gin.Context) {
+	rg := c.Query("rg_paciente")
+	result, s := service.BuscarConsultasPorRGPaciente(rg)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(200, result)
+
+}
+
 func ConsultaPUT(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

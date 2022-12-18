@@ -67,6 +67,15 @@ func BuscarConsultaPorID(id int) (model.Consulta, string) {
 	return consulta, ""
 }
 
+func BuscarConsultasPorRGPaciente(rg string) ([]model.Consulta, string) {
+	paciente, s := BuscarPacientePorRG(rg)
+	if s != "" {
+		var consultas []model.Consulta
+		return consultas, s
+	}
+	return repository.BuscarConsultasPorIdPaciente(int(paciente.ID)), ""
+}
+
 func AtualizarConsultaPorID(consulta model.Consulta, id int) (model.Consulta, string) {
 	if !DataHoraValida(consulta.DataHora) {
 		return model.Consulta{}, `Parâmetro dataHora com formato inválido. O formato aceito é: "DD-MM-AAAA hh:mm"`

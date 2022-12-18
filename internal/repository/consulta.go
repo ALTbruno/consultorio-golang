@@ -30,6 +30,12 @@ func BuscarConsultaPorID(id int) model.Consulta {
 	return consulta
 }
 
+func BuscarConsultasPorIdPaciente(id int) []model.Consulta {
+	var consultas []model.Consulta
+	db.DB.Where("paciente_id = ?", id).Find(&consultas)
+	return consultas
+}
+
 func AtualizarConsulta(consulta model.Consulta) model.Consulta {
 	db.DB.Save(&consulta)
 	return consulta
