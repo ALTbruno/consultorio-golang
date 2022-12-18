@@ -17,7 +17,13 @@ func ConsultaPOST(c *gin.Context) {
 		})
 		return
 	}
-	result := service.CadastrarConsulta(consulta)
+	result, s := service.CadastrarConsulta(consulta)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
 	c.JSON(201, result)
 }
 
@@ -27,20 +33,60 @@ func ConsultaGET(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result := service.BuscarConsultaPorID(id)
+	result, s := service.BuscarConsultaPorID(id)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
 	c.JSON(200, result)
 }
 
 func ConsultaPUT(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"message": "pong",
-	})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var consulta model.Consulta
+	if err := c.ShouldBindJSON(&consulta); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	result, s := service.AtualizarConsultaPorID(consulta, id)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(200, result)
 }
 
 func ConsultaPATCH(c *gin.Context) {
-	c.JSON(201, gin.H{
-		"message": "pong",
-	})
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var consulta model.Consulta
+	if err := c.ShouldBindJSON(&consulta); err != nil {
+		c.JSON(400, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	result, s := service.AtualizarConsultaParcial(consulta, id)
+	if s != "" {
+		c.JSON(400, gin.H{
+			"mensagem": s,
+		})
+		return
+	}
+	c.JSON(200, result)
 }
 
 func ConsultaDELETE(c *gin.Context) {
@@ -49,6 +95,8 @@ func ConsultaDELETE(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	service.DeletarConsultaPorID(id)
-	c.Writer.WriteHeader(http.StatusNoContent)
+	code, result := service.DeletarConsultaPorID(id)
+	c.JSON(code, gin.H{
+		"mensagem": result,
+	})
 }
