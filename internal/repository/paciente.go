@@ -13,7 +13,7 @@ func CadastrarPaciente(paciente model.Paciente) model.Paciente {
 	return paciente
 }
 
-func BuscarPacientePorID(id int) model.Paciente {
+func BuscarPacientePorID(id uint) model.Paciente {
 	var paciente model.Paciente
 	db.DB.First(&paciente, id)
 	return paciente
@@ -25,7 +25,7 @@ func BuscarPacientePorRG(rg string) model.Paciente {
 	return paciente
 }
 
-func ExistePacientePorId(id int) bool {
+func ExistePacientePorId(id uint) bool {
 	var paciente model.Paciente
 	err := db.DB.First(&paciente, id).Error
 	if err == gorm.ErrRecordNotFound {
@@ -36,17 +36,13 @@ func ExistePacientePorId(id int) bool {
 	return true
 }
 
-func AtualizarPaciente(paciente model.Paciente) model.Paciente {
-	db.DB.Save(&paciente)
-	return paciente
-}
-
-func DeletarPaciente(paciente model.Paciente) bool {
-	result:= db.DB.Delete(&paciente)
+func DeletarPacientePorId(id uint) bool {
+	result := db.DB.Delete(&model.Paciente{}, id)
 	return result.RowsAffected > 0
 }
 
-func AtualizarPacienteParcial(paciente model.Paciente, colunas map[string]interface{}) model.Paciente {
-	db.DB.Model(&paciente).UpdateColumns(colunas)
+func AtualizarPacientePorId(id uint, colunas map[string]interface{}) model.Paciente {
+	paciente := BuscarPacientePorID(id)
+	db.DB.Model(&paciente).Where("id = ?", id).UpdateColumns(colunas)
 	return paciente
 }

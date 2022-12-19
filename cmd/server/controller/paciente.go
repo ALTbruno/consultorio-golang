@@ -4,8 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	_ "github.com/ALTbruno/consultorio-golang/internal/dto"
-	"github.com/ALTbruno/consultorio-golang/internal/model"
+	"github.com/ALTbruno/consultorio-golang/internal/dto"
 	"github.com/ALTbruno/consultorio-golang/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -15,11 +14,11 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param request body dto.Paciente true "Todos os campos são obrigatórios"
-// @Success 201 {object} model.Paciente
+// @Success 201 {object} dto.PacienteResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /pacientes [post]
 func PacientePOST(c *gin.Context) {
-	var paciente model.Paciente
+	var paciente dto.Paciente
 	if err := c.ShouldBindJSON(&paciente); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
@@ -41,7 +40,7 @@ func PacientePOST(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param id path int true "ID Paciente"
-// @Success 200 {object} model.Paciente
+// @Success 200 {object} dto.PacienteResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /pacientes/{id} [get]
 func PacienteGET(c *gin.Context) {
@@ -51,7 +50,7 @@ func PacienteGET(c *gin.Context) {
 		return
 	}
 
-	result, s := service.BuscarPacientePorID(id)
+	result, s := service.BuscarPacientePorID(uint(id))
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
@@ -67,7 +66,7 @@ func PacienteGET(c *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true        "ID Paciente"
 // @Param request body dto.Paciente true "Todos os campos são obrigatórios"
-// @Success 200 {object} model.Paciente
+// @Success 200 {object} dto.PacienteResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /pacientes/{id} [put]
 func PacientePUT(c *gin.Context) {
@@ -76,14 +75,14 @@ func PacientePUT(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var paciente model.Paciente
+	var paciente dto.Paciente
 	if err := c.ShouldBindJSON(&paciente); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	result, s := service.AtualizarPacientePorID(paciente, id)
+	result, s := service.AtualizarPacientePorID(paciente, uint(id))
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
@@ -99,7 +98,7 @@ func PacientePUT(c *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true        "ID Paciente"
 // @Param request body dto.Paciente true "Não há campos obrigatórios"
-// @Success 200 {object} model.Paciente
+// @Success 200 {object} dto.PacienteResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /pacientes/{id} [patch]
 func PacientePATCH(c *gin.Context) {
@@ -108,14 +107,14 @@ func PacientePATCH(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var paciente model.Paciente
+	var paciente dto.Paciente
 	if err := c.ShouldBindJSON(&paciente); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	result, s := service.AtualizarPacienteParcial(paciente, id)
+	result, s := service.AtualizarPacienteParcial(paciente, uint(id))
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
@@ -139,7 +138,7 @@ func PacienteDELETE(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	code, result := service.DeletarPacientePorID(id)
+	code, result := service.DeletarPacientePorID(uint(id))
 	c.JSON(code, gin.H{
 		"mensagem": result,
 	})

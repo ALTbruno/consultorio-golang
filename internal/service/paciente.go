@@ -4,60 +4,70 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ALTbruno/consultorio-golang/internal/dto"
 	"github.com/ALTbruno/consultorio-golang/internal/model"
 	"github.com/ALTbruno/consultorio-golang/internal/repository"
 	"github.com/go-playground/validator/v10"
 )
 
-func CadastrarPaciente(paciente model.Paciente) (model.Paciente, string) {
+func CadastrarPaciente(paciente dto.Paciente) (dto.PacienteResponse, string) {
 	validate := validator.New()
 	err := validate.Struct(paciente)
 	if err != nil {
-		return model.Paciente{}, err.Error()
+		return dto.PacienteResponse{}, err.Error()
 	}
 	hoje := time.Now().Format("02-01-2006")
-	paciente.DataDeCadastro = hoje
-	p := repository.CadastrarPaciente(paciente)
-	return p, ""
+	p := repository.CadastrarPaciente(model.Paciente{
+		Nome: paciente.Nome,
+		Sobrenome: paciente.Sobrenome,
+		RG: paciente.Sobrenome,
+		DataDeCadastro: hoje,
+	})
+	pacienteResponse := ConverterPacienteModelParaResponse(p)
+	return pacienteResponse, ""
 }
 
-func BuscarPacientePorID(id int) (model.Paciente, string) {
+func BuscarPacientePorID(id uint) (dto.PacienteResponse, string) {
 	if !repository.ExistePacientePorId(id) {
-		return model.Paciente{}, fmt.Sprintf("Paciente não encontrado %d", id)
+		return dto.PacienteResponse{}, fmt.Sprintf("Paciente não encontrado %d", id)
 	}
 	paciente := repository.BuscarPacientePorID(id)
-	return paciente, ""
+	pacienteResponse := ConverterPacienteModelParaResponse(paciente)
+	return pacienteResponse, ""
 }
 
-func BuscarPacientePorRG(rg string) (model.Paciente, string) {
+func BuscarPacientePorRG(rg string) (dto.PacienteResponse, string) {
 	paciente := repository.BuscarPacientePorRG(rg)
 	if paciente == (model.Paciente{}) {
-		return model.Paciente{}, fmt.Sprintf("Paciente não encontrado com o RG %s", rg)
+		return dto.PacienteResponse{}, fmt.Sprintf("Paciente não encontrado com o RG %s", rg)
 	}
-	return paciente, ""
+	pacienteResponse := ConverterPacienteModelParaResponse(paciente)
+	return pacienteResponse, ""
 }
 
-func AtualizarPacientePorID(paciente model.Paciente, id int) (model.Paciente, string) {
+func AtualizarPacientePorID(paciente dto.Paciente, id uint) (dto.PacienteResponse, string) {
 	validate := validator.New()
 	err := validate.Struct(paciente)
 	if err != nil {
-		return model.Paciente{}, err.Error()
+		return dto.PacienteResponse{}, err.Error()
 	}
-	pacienteSalvo, s := BuscarPacientePorID(id)
+	_, s := BuscarPacientePorID(id)
 	if s != "" {
-		return model.Paciente{}, s
+		return dto.PacienteResponse{}, s
 	}
-	pacienteSalvo.Nome = paciente.Nome
-	pacienteSalvo.Sobrenome = paciente.Sobrenome
-	pacienteSalvo.RG = paciente.RG
-	p := repository.AtualizarPaciente(pacienteSalvo)
-	return p, ""
+	colunas := make(map[string]interface{})
+	colunas["nome"] = paciente.Nome
+	colunas["sobrenome"] = paciente.Sobrenome
+	colunas["rg"] = paciente.RG
+	p := repository.AtualizarPacientePorId(id, colunas)
+	pacienteResponse := ConverterPacienteModelParaResponse(p)
+	return pacienteResponse, ""
 }
 
-func AtualizarPacienteParcial(paciente model.Paciente, id int) (model.Paciente, string) {
-	pacienteSalvo, s := BuscarPacientePorID(id)
+func AtualizarPacienteParcial(paciente dto.Paciente, id uint) (dto.PacienteResponse, string) {
+	_, s := BuscarPacientePorID(id)
 	if s != "" {
-		return model.Paciente{}, s
+		return dto.PacienteResponse{}, s
 	}
 	colunas := make(map[string]interface{})
 	if paciente.Nome != "" {
@@ -70,19 +80,30 @@ func AtualizarPacienteParcial(paciente model.Paciente, id int) (model.Paciente, 
 		colunas["rg"] = paciente.RG
 	}
 
-	p := repository.AtualizarPacienteParcial(pacienteSalvo, colunas)
-	return p, ""
+	p := repository.AtualizarPacientePorId(id, colunas)
+	pacienteResponse := ConverterPacienteModelParaResponse(p)
+	return pacienteResponse, ""
 }
 
-func DeletarPacientePorID(id int) (int, string) {
-	paciente, res := BuscarPacientePorID(id)
+func DeletarPacientePorID(id uint) (int, string) {
+	_, res := BuscarPacientePorID(id)
 	if res != "" {
 		return 400, res
 	}
-	result := repository.DeletarPaciente(paciente)
+	result := repository.DeletarPacientePorId(id)
 	if result {
 		return 200, fmt.Sprintf("Paciente %d deletado com sucesso", id)
 	} else {
 		return 500, fmt.Sprintf("Erro ao deletar o paciente %d", id)
+	}
+}
+
+func ConverterPacienteModelParaResponse(paciente model.Paciente) dto.PacienteResponse {
+	return dto.PacienteResponse{
+		ID: paciente.ID,
+		Nome: paciente.Nome,
+		Sobrenome: paciente.Sobrenome,
+		RG: paciente.RG,
+		DataDeCadastro: paciente.DataDeCadastro,
 	}
 }
