@@ -1,0 +1,572 @@
+definitions:
+  dto.Consulta:
+    properties:
+      dataHora:
+        example: 23-02-2021 14:30
+        type: string
+      descricao:
+        example: Limpeza e extração
+        type: string
+      id_dentista:
+        example: 3
+        type: integer
+      id_paciente:
+        example: 19
+        type: integer
+    required:
+    - dataHora
+    - descricao
+    - id_dentista
+    - id_paciente
+    type: object
+  dto.ConsultaMatriculaRG:
+    properties:
+      dataHora:
+        example: 23-02-2021 14:30
+        type: string
+      descricao:
+        example: Limpeza e extração
+        type: string
+      matricula_dentista:
+        example: C123
+        type: string
+      rg_paciente:
+        example: "789456"
+        type: string
+    required:
+    - dataHora
+    - descricao
+    - matricula_dentista
+    - rg_paciente
+    type: object
+  dto.ConsultaResponse:
+    properties:
+      dataHora:
+        example: 23-02-2021 14:30
+        type: string
+      descricao:
+        example: Limpeza e extração
+        type: string
+      id:
+        example: 50
+        type: integer
+      id_dentista:
+        example: 3
+        type: integer
+      id_paciente:
+        example: 19
+        type: integer
+    required:
+    - dataHora
+    - descricao
+    - id
+    - id_dentista
+    - id_paciente
+    type: object
+  dto.Dentista:
+    properties:
+      matricula:
+        example: C123
+        type: string
+      nome:
+        example: Fulano
+        type: string
+      sobrenome:
+        example: de Tal
+        type: string
+    required:
+    - matricula
+    - nome
+    - sobrenome
+    type: object
+  dto.DentistaResponse:
+    properties:
+      id:
+        example: 3
+        type: integer
+      matricula:
+        example: C123
+        type: string
+      nome:
+        example: Fulano
+        type: string
+      sobrenome:
+        example: de Tal
+        type: string
+    type: object
+  dto.Paciente:
+    properties:
+      nome:
+        example: Ciclano
+        type: string
+      rg:
+        example: "789456"
+        type: string
+      sobrenome:
+        example: Silva
+        type: string
+    required:
+    - nome
+    - rg
+    - sobrenome
+    type: object
+  dto.PacienteResponse:
+    properties:
+      dataDeCadastro:
+        example: 23-03-2021
+        type: string
+      id:
+        example: 19
+        type: integer
+      nome:
+        example: Ciclano
+        type: string
+      rg:
+        example: "789456"
+        type: string
+      sobrenome:
+        example: Silva
+        type: string
+    type: object
+  dto.Resposta:
+    properties:
+      mensagem:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API responsável pelo gerenciamento de Dentistas, Pacientes e Consultas
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Cosultório Odontológico
+  version: "1.0"
+paths:
+  /consultas:
+    get:
+      consumes:
+      - application/json
+      description: Busca consultas por RG do paciente
+      parameters:
+      - description: RG do Paciente
+        in: query
+        name: rg_paciente
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ConsultaResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Busca consultas
+    post:
+      consumes:
+      - application/json
+      description: Registra uma consulta
+      parameters:
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Consulta'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ConsultaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Registra uma consulta
+  /consultas/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Apaga uma consulta por ID
+      parameters:
+      - description: ID Consulta
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Apaga uma consulta
+    get:
+      consumes:
+      - application/json
+      description: Busca uma consulta por ID
+      parameters:
+      - description: ID Consulta
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConsultaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Busca uma consulta
+    patch:
+      consumes:
+      - application/json
+      description: Atualiza uma consulta por ID
+      parameters:
+      - description: ID Consulta
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Não há campos obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Consulta'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConsultaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Atualiza uma consulta
+    put:
+      consumes:
+      - application/json
+      description: Atualiza uma consulta por ID
+      parameters:
+      - description: ID Consulta
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Consulta'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ConsultaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Atualiza uma consulta
+  /consultas/marcar:
+    post:
+      consumes:
+      - application/json
+      description: Registra uma consulta com matricula_dentista e rg_paciente
+      parameters:
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ConsultaMatriculaRG'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ConsultaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Registra uma consulta
+  /dentistas:
+    post:
+      consumes:
+      - application/json
+      description: Registra um dentista
+      parameters:
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Dentista'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.DentistaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Registra um dentista
+  /dentistas/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Apaga um dentista por ID
+      parameters:
+      - description: ID Dentista
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Apaga um dentista
+    get:
+      consumes:
+      - application/json
+      description: Busca um dentista por ID
+      parameters:
+      - description: ID Dentista
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DentistaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Busca um dentista
+    patch:
+      consumes:
+      - application/json
+      description: Atualiza um dentista por ID
+      parameters:
+      - description: ID Dentista
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Não há campos obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Dentista'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DentistaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Atualiza um dentista
+    put:
+      consumes:
+      - application/json
+      description: Atualiza um dentista por ID
+      parameters:
+      - description: ID Dentista
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Dentista'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DentistaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Atualiza um dentista
+  /pacientes:
+    post:
+      consumes:
+      - application/json
+      description: Registra um paciente
+      parameters:
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Paciente'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PacienteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Registra um paciente
+  /pacientes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Apaga um paciente por ID
+      parameters:
+      - description: ID Paciente
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Apaga um paciente
+    get:
+      consumes:
+      - application/json
+      description: Busca um paciente por ID
+      parameters:
+      - description: ID Paciente
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PacienteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Busca um paciente
+    patch:
+      consumes:
+      - application/json
+      description: Atualiza um paciente por ID
+      parameters:
+      - description: ID Paciente
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Não há campos obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Paciente'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PacienteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Atualiza um paciente
+    put:
+      consumes:
+      - application/json
+      description: Atualiza um paciente por ID
+      parameters:
+      - description: ID Paciente
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Todos os campos são obrigatórios
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Paciente'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PacienteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.Resposta'
+      summary: Atualiza um paciente
+swagger: "2.0"
