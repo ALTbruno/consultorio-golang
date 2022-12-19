@@ -11,43 +11,49 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func CadastrarConsulta(consulta model.Consulta) (model.Consulta, string) {
+func CadastrarConsulta(consulta dto.Consulta) (dto.ConsultaResponse, string) {
 	if !DataHoraValida(consulta.DataHora) {
-		return model.Consulta{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
+		return dto.ConsultaResponse{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
 	}
 	validate := validator.New()
 	err := validate.Struct(consulta)
 	if err != nil {
-		return model.Consulta{}, err.Error()
+		return dto.ConsultaResponse{}, err.Error()
 	}
-	_, nd := BuscarDentistaPorID(int(consulta.DentistaID))
+	_, nd := BuscarDentistaPorID(consulta.DentistaID)
 	if nd != "" {
-		return model.Consulta{}, nd
+		return dto.ConsultaResponse{}, nd
 	}
-	_, np := BuscarPacientePorID(int(consulta.PacienteID))
+	_, np := BuscarPacientePorID(consulta.PacienteID)
 	if np != "" {
-		return model.Consulta{}, np
+		return dto.ConsultaResponse{}, np
 	}
-	c := repository.CadastrarConsulta(consulta)
-	return c, ""
+	c := repository.CadastrarConsulta(model.Consulta{
+		DentistaID: consulta.DentistaID,
+		PacienteID: consulta.PacienteID,
+		DataHora: consulta.DataHora,
+		Descricao: consulta.Descricao,
+	})
+	consultaResponse := ConverterConsultaModelParaResponse(c)
+	return consultaResponse, ""
 }
 
-func CadastrarConsultaPorMatriculaRG(consulta dto.ConsultaMatriculaRG) (model.Consulta, string) {
+func CadastrarConsultaPorMatriculaRG(consulta dto.ConsultaMatriculaRG) (dto.ConsultaResponse, string) {
 	if !DataHoraValida(consulta.DataHora) {
-		return model.Consulta{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
+		return dto.ConsultaResponse{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
 	}
 	validate := validator.New()
 	err := validate.Struct(consulta)
 	if err != nil {
-		return model.Consulta{}, err.Error()
+		return dto.ConsultaResponse{}, err.Error()
 	}
 	dentista, nd := BuscarDentistaPorMatricula(consulta.MatriculaDentista)
 	if nd != "" {
-		return model.Consulta{}, nd
+		return dto.ConsultaResponse{}, nd
 	}
 	paciente, np := BuscarPacientePorRG(consulta.RGPaciente)
 	if np != "" {
-		return model.Consulta{}, np
+		return dto.ConsultaResponse{}, np
 	}
 	consultaModel := model.Consulta {
 		DentistaID: dentista.ID,
@@ -56,78 +62,88 @@ func CadastrarConsultaPorMatriculaRG(consulta dto.ConsultaMatriculaRG) (model.Co
 		Descricao: consulta.Descricao,
 	}
 	c := repository.CadastrarConsulta(consultaModel)
-	return c, ""
+	consultaResponse := ConverterConsultaModelParaResponse(c)
+	return consultaResponse, ""
 }
 
-func BuscarConsultaPorID(id int) (model.Consulta, string) {
+func BuscarConsultaPorID(id uint) (dto.ConsultaResponse, string) {
 	if !repository.ExisteConsultaPorId(id) {
-		return model.Consulta{}, fmt.Sprintf("Consulta não encontrada %d", id)
+		return dto.ConsultaResponse{}, fmt.Sprintf("Consulta não encontrada %d", id)
 	}
 	consulta := repository.BuscarConsultaPorID(id)
-	return consulta, ""
+	consultaResponse := ConverterConsultaModelParaResponse(consulta)
+	return consultaResponse, ""
 }
 
-func BuscarConsultasPorRGPaciente(rg string) ([]model.Consulta, string) {
+func BuscarConsultasPorRGPaciente(rg string) ([]dto.ConsultaResponse, string) {
 	paciente, s := BuscarPacientePorRG(rg)
 	if s != "" {
-		var consultas []model.Consulta
+		var consultas []dto.ConsultaResponse
 		return consultas, s
 	}
-	return repository.BuscarConsultasPorIdPaciente(int(paciente.ID)), ""
+	consultas := repository.BuscarConsultasPorIdPaciente(paciente.ID)
+	var consultasResponse []dto.ConsultaResponse
+	for _, consulta := range consultas {
+		consultaResponse := ConverterConsultaModelParaResponse(consulta)
+		consultasResponse = append(consultasResponse, consultaResponse)
+	}
+	return consultasResponse, ""
 }
 
-func AtualizarConsultaPorID(consulta model.Consulta, id int) (model.Consulta, string) {
+func AtualizarConsultaPorID(consulta dto.Consulta, id uint) (dto.ConsultaResponse, string) {
 	if !DataHoraValida(consulta.DataHora) {
-		return model.Consulta{}, `Parâmetro dataHora com formato inválido. O formato aceito é: "DD-MM-AAAA hh:mm"`
+		return dto.ConsultaResponse{}, `Parâmetro dataHora com formato inválido. O formato aceito é: "DD-MM-AAAA hh:mm"`
 	}
 	validate := validator.New()
 	err := validate.Struct(consulta)
 	if err != nil {
-		return model.Consulta{}, err.Error()
+		return dto.ConsultaResponse{}, err.Error()
 	}
-	_, nd := BuscarDentistaPorID(int(consulta.DentistaID))
+	_, nd := BuscarDentistaPorID(consulta.DentistaID)
 	if nd != "" {
-		return model.Consulta{}, nd
+		return dto.ConsultaResponse{}, nd
 	}
-	_, np := BuscarPacientePorID(int(consulta.PacienteID))
+	_, np := BuscarPacientePorID(consulta.PacienteID)
 	if np != "" {
-		return model.Consulta{}, np
+		return dto.ConsultaResponse{}, np
 	}
-	consultaSalva, s := BuscarConsultaPorID(id)
+	_, s := BuscarConsultaPorID(id)
 	if s != "" {
-		return model.Consulta{}, s
+		return dto.ConsultaResponse{}, s
 	}
-	consultaSalva.DentistaID = consulta.DentistaID
-	consultaSalva.PacienteID = consulta.PacienteID
-	consultaSalva.DataHora = consulta.DataHora
-	consultaSalva.Descricao = consulta.Descricao
-	c := repository.AtualizarConsulta(consultaSalva)
-	return c, ""
+	colunas := make(map[string]interface{})
+	colunas["dentista_id"] = consulta.DentistaID
+	colunas["paciente_id"] = consulta.PacienteID
+	colunas["data_hora"] = consulta.DataHora
+	colunas["descricao"] = consulta.Descricao
+	c := repository.AtualizarConsultaPorId(id, colunas)
+	consultaResponse := ConverterConsultaModelParaResponse(c)
+	return consultaResponse, ""
 }
 
-func AtualizarConsultaParcial(consulta model.Consulta, id int) (model.Consulta, string) {
-	consultaSalva, s := BuscarConsultaPorID(id)
+func AtualizarConsultaParcial(consulta dto.Consulta, id uint) (dto.ConsultaResponse, string) {
+	_, s := BuscarConsultaPorID(id)
 	if s != "" {
-		return model.Consulta{}, s
+		return dto.ConsultaResponse{}, s
 	}
 	colunas := make(map[string]interface{})
 	if consulta.DentistaID != 0 {
-		_, s := BuscarDentistaPorID(int(consulta.DentistaID))
+		_, s := BuscarDentistaPorID(consulta.DentistaID)
 		if s != "" {
-			return model.Consulta{}, s
+			return dto.ConsultaResponse{}, s
 		}
 		colunas["dentista_id"] = consulta.DentistaID
 	}
 	if consulta.PacienteID != 0 {
-		_, s := BuscarPacientePorID(int(consulta.PacienteID))
+		_, s := BuscarPacientePorID(consulta.PacienteID)
 		if s != "" {
-			return model.Consulta{}, s
+			return dto.ConsultaResponse{}, s
 		}
 		colunas["paciente_id"] = consulta.PacienteID
 	}
 	if consulta.DataHora != "" {
 		if !DataHoraValida(consulta.DataHora) {
-			return model.Consulta{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
+			return dto.ConsultaResponse{}, "Parâmetro dataHora com formato inválido. O formato aceito é: DD-MM-AAAA hh:mm"
 		}
 		colunas["data_hora"] = consulta.DataHora
 	}
@@ -135,16 +151,17 @@ func AtualizarConsultaParcial(consulta model.Consulta, id int) (model.Consulta, 
 		colunas["descricao"] = consulta.Descricao
 	}
 	
-	c := repository.AtualizarConsultaParcial(consultaSalva, colunas)
-	return c, ""
+	c := repository.AtualizarConsultaPorId(id, colunas)
+	consultaResponse := ConverterConsultaModelParaResponse(c)
+	return consultaResponse, ""
 }
 
-func DeletarConsultaPorID(id int) (int, string) {
-	consulta, res := BuscarConsultaPorID(id)
+func DeletarConsultaPorID(id uint) (int, string) {
+	_, res := BuscarConsultaPorID(id)
 	if res != "" {
 		return 400, res
 	}
-	result := repository.DeletarConsulta(consulta)
+	result := repository.DeletarConsultaPorId(id)
 	if result {
 		return 200, fmt.Sprintf("Consulta %d deletada com sucesso", id)
 	} else {
@@ -159,4 +176,14 @@ func DataHoraValida(dataHora string) bool {
 		log.Fatal("Erro ao validar Data e Hora com o padrão")
 	}
 	return matched
+}
+
+func ConverterConsultaModelParaResponse(consulta model.Consulta) dto.ConsultaResponse {
+	return dto.ConsultaResponse{
+		ID: consulta.ID,
+		DentistaID: consulta.DentistaID,
+		PacienteID: consulta.PacienteID,
+		DataHora: consulta.DataHora,
+		Descricao: consulta.Descricao,
+	}
 }

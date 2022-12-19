@@ -13,7 +13,7 @@ func CadastrarConsulta(consulta model.Consulta) model.Consulta {
 	return consulta
 }
 
-func ExisteConsultaPorId(id int) bool {
+func ExisteConsultaPorId(id uint) bool {
 	var consulta model.Consulta
 	err := db.DB.First(&consulta, id).Error
 	if err == gorm.ErrRecordNotFound {
@@ -24,29 +24,25 @@ func ExisteConsultaPorId(id int) bool {
 	return true
 }
 
-func BuscarConsultaPorID(id int) model.Consulta {
+func BuscarConsultaPorID(id uint) model.Consulta {
 	var consulta model.Consulta
 	db.DB.First(&consulta, id)
 	return consulta
 }
 
-func BuscarConsultasPorIdPaciente(id int) []model.Consulta {
+func BuscarConsultasPorIdPaciente(id uint) []model.Consulta {
 	var consultas []model.Consulta
 	db.DB.Where("paciente_id = ?", id).Find(&consultas)
 	return consultas
 }
 
-func AtualizarConsulta(consulta model.Consulta) model.Consulta {
-	db.DB.Save(&consulta)
-	return consulta
-}
-
-func DeletarConsulta(consulta model.Consulta) bool {
-	result := db.DB.Delete(&consulta)
+func DeletarConsultaPorId(id uint) bool {
+	result := db.DB.Delete(&model.Consulta{}, id)
 	return result.RowsAffected > 0
 }
 
-func AtualizarConsultaParcial(consulta model.Consulta, colunas map[string]interface{}) model.Consulta {
-	db.DB.Model(&consulta).UpdateColumns(colunas)
+func AtualizarConsultaPorId(id uint, colunas map[string]interface{}) model.Consulta {
+	consulta := BuscarConsultaPorID(id)
+	db.DB.Model(&consulta).Where("id = ?", id).UpdateColumns(colunas)
 	return consulta
 }

@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/ALTbruno/consultorio-golang/internal/dto"
-	"github.com/ALTbruno/consultorio-golang/internal/model"
 	"github.com/ALTbruno/consultorio-golang/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -14,12 +13,12 @@ import (
 // @Description Registra uma consulta
 // @Accept  json
 // @Produce  json
-// @Param request body dto.ConsultaBody true "Todos os campos são obrigatórios"
+// @Param request body dto.Consulta true "Todos os campos são obrigatórios"
 // @Success 201 {object} dto.ConsultaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /consultas [post]
 func ConsultaPOST(c *gin.Context) {
-	var consulta model.Consulta
+	var consulta dto.Consulta
 	if err := c.ShouldBindJSON(&consulta); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
@@ -40,7 +39,7 @@ func ConsultaPOST(c *gin.Context) {
 // @Description Registra uma consulta com matricula_dentista e rg_paciente
 // @Accept  json
 // @Produce  json
-// @Param request body dto.ConsultaBodyMatriculaRG true "Todos os campos são obrigatórios"
+// @Param request body dto.ConsultaMatriculaRG true "Todos os campos são obrigatórios"
 // @Success 201 {object} dto.ConsultaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /consultas/marcar [post]
@@ -76,7 +75,7 @@ func ConsultaGET(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	result, s := service.BuscarConsultaPorID(id)
+	result, s := service.BuscarConsultaPorID(uint(id))
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
@@ -112,7 +111,7 @@ func BuscarConsultasPorRGPaciente(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true        "ID Consulta"
-// @Param request body dto.ConsultaBody true "Todos os campos são obrigatórios"
+// @Param request body dto.Consulta true "Todos os campos são obrigatórios"
 // @Success 200 {object} dto.ConsultaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /consultas/{id} [put]
@@ -122,14 +121,14 @@ func ConsultaPUT(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var consulta model.Consulta
+	var consulta dto.Consulta
 	if err := c.ShouldBindJSON(&consulta); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	result, s := service.AtualizarConsultaPorID(consulta, id)
+	result, s := service.AtualizarConsultaPorID(consulta, uint(id))
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
@@ -144,7 +143,7 @@ func ConsultaPUT(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true        "ID Consulta"
-// @Param request body dto.ConsultaBody true "Não há campos obrigatórios"
+// @Param request body dto.Consulta true "Não há campos obrigatórios"
 // @Success 200 {object} dto.ConsultaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /consultas/{id} [patch]
@@ -154,14 +153,14 @@ func ConsultaPATCH(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var consulta model.Consulta
+	var consulta dto.Consulta
 	if err := c.ShouldBindJSON(&consulta); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	result, s := service.AtualizarConsultaParcial(consulta, id)
+	result, s := service.AtualizarConsultaParcial(consulta, uint(id))
 	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
@@ -185,7 +184,7 @@ func ConsultaDELETE(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	code, result := service.DeletarConsultaPorID(id)
+	code, result := service.DeletarConsultaPorID(uint(id))
 	c.JSON(code, gin.H{
 		"mensagem": result,
 	})
