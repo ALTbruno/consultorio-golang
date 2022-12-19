@@ -20,7 +20,7 @@ func CadastrarPaciente(paciente dto.Paciente) (dto.PacienteResponse, string) {
 	p := repository.CadastrarPaciente(model.Paciente{
 		Nome: paciente.Nome,
 		Sobrenome: paciente.Sobrenome,
-		RG: paciente.Sobrenome,
+		RG: paciente.RG,
 		DataDeCadastro: hoje,
 	})
 	pacienteResponse := ConverterPacienteModelParaResponse(p)
