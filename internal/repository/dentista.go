@@ -13,7 +13,7 @@ func CadastrarDentista(dentista model.Dentista) model.Dentista {
 	return dentista
 }
 
-func BuscarDentistaPorID(id int) model.Dentista {
+func BuscarDentistaPorID(id uint) model.Dentista {
 	var dentista model.Dentista
 	db.DB.First(&dentista, id)
 	return dentista
@@ -25,7 +25,7 @@ func BuscarDentistaPorMatricula(matricula string) model.Dentista {
 	return dentista
 }
 
-func ExisteDentistaPorId(id int) bool {
+func ExisteDentistaPorId(id uint) bool {
 	var dentista model.Dentista
 	err := db.DB.First(&dentista, id).Error
 	if err == gorm.ErrRecordNotFound {
@@ -36,17 +36,13 @@ func ExisteDentistaPorId(id int) bool {
 	return true
 }
 
-func AtualizarDentista(dentista model.Dentista) model.Dentista {
-	db.DB.Save(&dentista)
-	return dentista
-}
-
-func DeletarDentista(dentista model.Dentista) bool {
-	result := db.DB.Delete(&dentista)
+func DeletarDentistaPorId(id uint) bool {
+	result := db.DB.Delete(&model.Dentista{}, id)
 	return result.RowsAffected > 0
 }
 
-func AtualizarDentistaParcial(dentista model.Dentista, colunas map[string]interface{}) model.Dentista {
-	db.DB.Model(&dentista).UpdateColumns(colunas)
+func AtualizarDentistaPorId(id uint, colunas map[string]interface{}) model.Dentista {
+	dentista := BuscarDentistaPorID(id)
+	db.DB.Model(&dentista).Where("id = ?", id).UpdateColumns(colunas)
 	return dentista
 }

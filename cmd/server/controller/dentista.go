@@ -4,8 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	_ "github.com/ALTbruno/consultorio-golang/internal/dto"
-	"github.com/ALTbruno/consultorio-golang/internal/model"
+	"github.com/ALTbruno/consultorio-golang/internal/dto"
 	"github.com/ALTbruno/consultorio-golang/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -15,11 +14,11 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param request body dto.Dentista true "Todos os campos são obrigatórios"
-// @Success 201 {object} model.Dentista
+// @Success 201 {object} dto.DentistaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /dentistas [post]
 func DentistaPOST(c *gin.Context) {
-	var dentista model.Dentista
+	var dentista dto.Dentista
 	if err := c.ShouldBindJSON(&dentista); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
@@ -27,7 +26,7 @@ func DentistaPOST(c *gin.Context) {
 		return
 	}
 	result, s := service.CadastrarDentista(dentista)
-	if len(s) > 0 {
+	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
 		})
@@ -41,7 +40,7 @@ func DentistaPOST(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param   id     path    int     true        "ID Dentista"
-// @Success 200 {object} model.Dentista
+// @Success 200 {object} dto.DentistaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /dentistas/{id} [get]
 func DentistaGET(c *gin.Context) {
@@ -51,7 +50,7 @@ func DentistaGET(c *gin.Context) {
 		return
 	}
 
-	dentista, res := service.BuscarDentistaPorID(id)
+	dentista, res := service.BuscarDentistaPorID(uint(id))
 	if len(res) > 0 {
 		c.JSON(400, gin.H{
 			"mensagem": res,
@@ -67,7 +66,7 @@ func DentistaGET(c *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true        "ID Dentista"
 // @Param request body dto.Dentista true "Todos os campos são obrigatórios"
-// @Success 200 {object} model.Dentista
+// @Success 200 {object} dto.DentistaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /dentistas/{id} [put]
 func DentistaPUT(c *gin.Context) {
@@ -76,15 +75,15 @@ func DentistaPUT(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var dentista model.Dentista
+	var dentista dto.Dentista
 	if err := c.ShouldBindJSON(&dentista); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	d, s := service.AtualizarDentistaPorID(dentista, id)
-	if len(s) > 0 {
+	d, s := service.AtualizarDentistaPorID(dentista, uint(id))
+	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
 		})
@@ -99,7 +98,7 @@ func DentistaPUT(c *gin.Context) {
 // @Produce  json
 // @Param   id     path    int     true        "ID Dentista"
 // @Param request body dto.Dentista true "Não há campos obrigatórios"
-// @Success 200 {object} model.Dentista
+// @Success 200 {object} dto.DentistaResponse
 // @Failure 400 {object} dto.Resposta
 // @Router /dentistas/{id} [patch]
 func DentistaPATCH(c *gin.Context) {
@@ -108,15 +107,15 @@ func DentistaPATCH(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	var dentista model.Dentista
+	var dentista dto.Dentista
 	if err := c.ShouldBindJSON(&dentista); err != nil {
 		c.JSON(400, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	d, s := service.AtualizarDentistaParcial(dentista, id)
-	if len(s) > 0 {
+	d, s := service.AtualizarDentistaParcial(dentista, uint(id))
+	if s != "" {
 		c.JSON(400, gin.H{
 			"mensagem": s,
 		})
@@ -139,7 +138,7 @@ func DentistaDELETE(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	code, result := service.DeletarDentistaPorID(id)
+	code, result := service.DeletarDentistaPorID(uint(id))
 	c.JSON(code, gin.H{
 		"mensagem": result,
 	})

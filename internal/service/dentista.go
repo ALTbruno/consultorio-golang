@@ -3,58 +3,70 @@ package service
 import (
 	"fmt"
 
+	"github.com/ALTbruno/consultorio-golang/internal/dto"
 	"github.com/ALTbruno/consultorio-golang/internal/model"
 	"github.com/ALTbruno/consultorio-golang/internal/repository"
 	"github.com/go-playground/validator/v10"
 )
 
-func CadastrarDentista(dentista model.Dentista) (model.Dentista, string) {
+func CadastrarDentista(dentista dto.Dentista) (dto.DentistaResponse, string) {
 	validate := validator.New()
 	err := validate.Struct(dentista)
 	if err != nil {
-		return model.Dentista{}, err.Error()
+		return dto.DentistaResponse{}, err.Error()
 	}
-	d := repository.CadastrarDentista(dentista)
-	return d, ""
+	d := repository.CadastrarDentista(
+		model.Dentista{
+			Nome: dentista.Nome,
+			Sobrenome: dentista.Sobrenome,
+			Matricula: dentista.Matricula,
+		},
+	)
+	dentistaResponse := ConverteDentistaModelParaResponse(d)
+	return dentistaResponse, ""
 }
 
-func BuscarDentistaPorID(id int) (model.Dentista, string) {
+func BuscarDentistaPorID(id uint) (dto.DentistaResponse, string) {
 	if !repository.ExisteDentistaPorId(id) {
-		return model.Dentista{}, fmt.Sprintf("Dentista não encontrado %d", id)
+		return dto.DentistaResponse{}, fmt.Sprintf("Dentista não encontrado %d", id)
 	}
 	dentista := repository.BuscarDentistaPorID(id)
-	return dentista, ""
+	dentistaResponse := ConverteDentistaModelParaResponse(dentista)
+	return dentistaResponse, ""
 }
 
-func BuscarDentistaPorMatricula(matricula string) (model.Dentista, string) {
+func BuscarDentistaPorMatricula(matricula string) (dto.DentistaResponse, string) {
 	dentista := repository.BuscarDentistaPorMatricula(matricula)
 	if dentista == (model.Dentista{}) {
-		return model.Dentista{}, fmt.Sprintf("Dentista não encontrado com a Matrícula %s", matricula)
+		return dto.DentistaResponse{}, fmt.Sprintf("Dentista não encontrado com a Matrícula %s", matricula)
 	}
-	return dentista, ""
+	dentistaResponse := ConverteDentistaModelParaResponse(dentista)
+	return dentistaResponse, ""
 }
 
-func AtualizarDentistaPorID(dentista model.Dentista, id int) (model.Dentista, string) {
+func AtualizarDentistaPorID(dentista dto.Dentista, id uint) (dto.DentistaResponse, string) {
 	validate := validator.New()
 	err := validate.Struct(dentista)
 	if err != nil {
-		return model.Dentista{}, err.Error()
+		return dto.DentistaResponse{}, err.Error()
 	}
-	dentistaSalvo, s := BuscarDentistaPorID(id)
-	if len(s) > 0 {
-		return model.Dentista{}, s
+	_, s := BuscarDentistaPorID(id)
+	if s != "" {
+		return dto.DentistaResponse{}, s
 	}
-	dentistaSalvo.Nome = dentista.Nome
-	dentistaSalvo.Sobrenome = dentista.Sobrenome
-	dentistaSalvo.Matricula = dentista.Matricula
-	d := repository.AtualizarDentista(dentistaSalvo)
-	return d, ""
+	colunas := make(map[string]interface{})
+	colunas["nome"] = dentista.Nome
+	colunas["sobrenome"] = dentista.Sobrenome
+	colunas["matricula"] = dentista.Matricula
+	d := repository.AtualizarDentistaPorId(id, colunas)
+	dentistaResponse := ConverteDentistaModelParaResponse(d)
+	return dentistaResponse, ""
 }
 
-func AtualizarDentistaParcial(dentista model.Dentista, id int) (model.Dentista, string) {
-	dentistaSalvo, s := BuscarDentistaPorID(id)
-	if len(s) > 0 {
-		return model.Dentista{}, s
+func AtualizarDentistaParcial(dentista dto.Dentista, id uint) (dto.DentistaResponse, string) {
+	_, s := BuscarDentistaPorID(id)
+	if s != "" {
+		return dto.DentistaResponse{}, s
 	}
 	colunas := make(map[string]interface{})
 	if dentista.Nome != "" {
@@ -67,19 +79,29 @@ func AtualizarDentistaParcial(dentista model.Dentista, id int) (model.Dentista, 
 		colunas["matricula"] = dentista.Matricula
 	}
 	
-	r := repository.AtualizarDentistaParcial(dentistaSalvo, colunas)
-	return r, ""
+	d := repository.AtualizarDentistaPorId(id, colunas)
+	dentistaResponse := ConverteDentistaModelParaResponse(d)
+	return dentistaResponse, ""
 }
 
-func DeletarDentistaPorID(id int) (int, string) {
-	dentista, res := BuscarDentistaPorID(id)
-	if len(res) > 0 {
+func DeletarDentistaPorID(id uint) (int, string) {
+	_, res := BuscarDentistaPorID(id)
+	if res != "" {
 		return 400, res
 	}
-	result := repository.DeletarDentista(dentista)
+	result := repository.DeletarDentistaPorId(id)
 	if result {
 		return 200, fmt.Sprintf("Dentista %d deletado com sucesso", id)
 	} else {
 		return 500, fmt.Sprintf("Erro ao deletar o dentista %d", id)
+	}
+}
+
+func ConverteDentistaModelParaResponse(dentista model.Dentista) dto.DentistaResponse {
+	return dto.DentistaResponse{
+		ID: dentista.ID,
+		Nome: dentista.Nome,
+		Sobrenome: dentista.Sobrenome,
+		Matricula: dentista.Matricula,
 	}
 }
